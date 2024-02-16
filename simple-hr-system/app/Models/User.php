@@ -55,4 +55,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(UserLeaveRequest::class);
     }
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
+
+    public function hasRole($roleName)
+    {
+        return $this->role?->name === $roleName;
+    }
+
+    public function scopeFilterName($query, $value)
+    {
+        if (empty($value)) return $query;
+        return $query->where('name', 'like', '%' . $value . '%');
+    }
 }
