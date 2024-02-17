@@ -23,18 +23,19 @@ class UserUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name"=> "sometimes|string",
-            "last_name"=> "sometimes|string",
-            "first_name"=> "sometimes|string",
-            "birthday"=> "sometimes|date",
-            "gender"=> [
+            "name" => "sometimes|string",
+            "last_name" => "sometimes|string",
+            "first_name" => "sometimes|string",
+            "birthday" => "sometimes|date",
+            "gender" => [
                 "sometimes",
                 Rule::in(['F', 'M'])
             ],
-            "on_board_date"=> "sometimes|date",
-            "exit_date"=> "sometimes|nullable|date",
-            "is_active"=> "sometimes|date",
+            "on_board_date" => "sometimes|date",
+            "exit_date" => "sometimes|nullable|date",
+            "is_active" => "sometimes|date",
             "password" => "sometimes|string",
+            "role_id" => "sometimes|nullable|exists:roles,id",
         ];
     }
 }

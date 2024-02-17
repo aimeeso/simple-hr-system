@@ -25,6 +25,7 @@ class UserDetailResource extends JsonResource
             "exit_date"=> $this->exit_date,
             "is_active"=> $this->is_active,
             "email"=> $this->email,
+            "role" => $this->role
         ];
     }
 }

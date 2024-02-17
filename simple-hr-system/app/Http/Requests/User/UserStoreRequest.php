@@ -23,16 +23,17 @@ class UserStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            "name"=> "required|string",
-            "last_name"=> "required|string",
-            "first_name"=> "required|string",
-            "birthday"=> "required|date",
-            "gender"=> ["required", Rule::in(['F', 'M'])],
-            "on_board_date"=> "required|date",
-            "exit_date"=> "nullable|date",
-            "is_active"=> "required|date",
-            "email"=> "required|email:rfc,dns|unique:users,email",
+            "name" => "required|string",
+            "last_name" => "required|string",
+            "first_name" => "required|string",
+            "birthday" => "required|date",
+            "gender" => ["required", Rule::in(['F', 'M'])],
+            "on_board_date" => "required|date",
+            "exit_date" => "nullable|date",
+            "is_active" => "required|date",
+            "email" => "required|email:rfc,dns|unique:users,email",
             "password" => "required|string",
+            "role_id" => "nullable|exists:roles,id"
         ];
     }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UserStoreRequest;
+use App\Http\Requests\User\UserUpdateRequest;
 use App\Http\Resources\UserDetailResource;
 use App\Http\Resources\UserListResource;
 use App\Models\User;
@@ -34,15 +35,14 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
             $user = new User();
-            $user->name = $validated['name'];
-            $user->email = $validated['email'];
-            $user->password = Hash::make($validated['password']);
-            $user->birthday = $validated['birthday'];
-            $user->geneder = $validated['geneder'];
-            $user->on_board_date = $validated['on_board_date'];
-            $user->is_active = $validated['is_active'];
-            $user->email = $validated['email'];
-            $user->exit_date = $validated['exit_date'];
+            foreach ($validated as $key => $value) {
+                if($key == "password") {
+                    $user->password = Hash::make($value);
+                }
+                else {
+                    $user->{$key} = $value;
+                }                
+            }
             $user->save();
             DB::commit();
         } catch (\Exception $e) {
@@ -58,7 +58,7 @@ class UserController extends Controller
         return new UserDetailResource($user);
     }
 
-    public function update(UserStoreRequest $request, User $user)
+    public function update(UserUpdateRequest $request, User $user)
     {
         $this->authorize("update", $user);
         $validated = $request->validated();

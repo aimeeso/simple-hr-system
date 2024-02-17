@@ -16,3 +16,27 @@ Insight
 - Annual report
 - Overlap schedule alert
 - Overview calender
+
+# API Overview
+Autherication
+- Login
+- Logout
+- Profile
+
+User Management
+- List
+- View
+- Create (with role)
+- Update (with role)
+
+Role Mangement
+- List
+- Create
+- Update
+- Delete
+
+Leave Type Mangement
+- List
+- Create
+- Update
+- Delete (only avaliable if not used in request(s))
