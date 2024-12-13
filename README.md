@@ -1,6 +1,6 @@
 # simple-hr-system
 Simple HR system to take care your needs.
-Keep track of 
+Keep track of the employees leave applications and employment status.
 
 # Features
 Autherication
