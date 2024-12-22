@@ -36,6 +36,10 @@ class UserUpdateRequest extends FormRequest
             "is_active" => "sometimes|date",
             "password" => "sometimes|string",
             "role_id" => "sometimes|nullable|exists:roles,id",
+            "yearlyAnnualLeaves" => "sometimes|array",
+            "yearlyAnnualLeaves.*.year" => "required|integer",
+            "yearlyAnnualLeaves.*.number_of_day" => "required|numeric",
+            "yearlyAnnualLeaves.*.additional_number_of_day" => "required|numeric",
         ];
     }
 }

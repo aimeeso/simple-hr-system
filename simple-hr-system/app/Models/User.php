@@ -9,8 +9,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Contracts\GenericModel;
 
-class User extends Authenticatable
+class User extends Authenticatable implements GenericModel
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -22,7 +23,6 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
     ];
 
     /**
@@ -69,5 +69,16 @@ class User extends Authenticatable
     {
         if (empty($value)) return $query;
         return $query->where('name', 'like', '%' . $value . '%');
+    }
+
+    public function saveManyYearlyAnnualLeaves($yearlyAnnualLeaves)
+    {
+        // Perform the upsert operation
+        foreach ($yearlyAnnualLeaves as $leave) {
+        UserYearlyAnnualLeave::updateOrCreate(
+                ['user_id' => $this->id, 'year' => $leave['year']], // Match the year for this user
+                ['number_of_day' => $leave['number_of_day'], 'additional_number_of_day' => $leave['additional_number_of_day']] // Update or insert the number_of_day and additional_number_of_day
+            );
+        }
     }
 }

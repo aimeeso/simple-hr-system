@@ -36,12 +36,11 @@ class UserController extends Controller
             DB::beginTransaction();
             $user = new User();
             foreach ($validated as $key => $value) {
-                if($key == "password") {
+                if ($key == "password") {
                     $user->password = Hash::make($value);
-                }
-                else {
+                } else {
                     $user->{$key} = $value;
-                }                
+                }
             }
             $user->save();
             DB::commit();
@@ -53,7 +52,8 @@ class UserController extends Controller
         return new UserDetailResource($user);
     }
 
-    public function show(User $user) {
+    public function show(User $user)
+    {
         $this->authorize("view", $user);
         return new UserDetailResource($user);
     }
@@ -61,25 +61,34 @@ class UserController extends Controller
     public function update(UserUpdateRequest $request, User $user)
     {
         $this->authorize("update", $user);
+
         $validated = $request->validated();
+        // do not pass yearlyAnnualLeaves to user model
+        $yearlyAnnualLeaves = $validated["yearlyAnnualLeaves"] ?? [];
+        unset($validated["yearlyAnnualLeaves"]);
+
         try {
             DB::beginTransaction();
-            // only update the given fields
+
+            // Update the user fields
             foreach ($validated as $key => $value) {
-                if($key == "password") {
+                if ($key == "password") {
                     $user->password = Hash::make($value);
-                }
-                else {
+                } else {
                     $user->{$key} = $value;
-                }                
+                }
             }
+
             $user->save();
+
+            $user->saveManyYearlyAnnualLeaves($yearlyAnnualLeaves);
+
             DB::commit();
+
+            return response()->noContent();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(["message" => $e->getMessage()], 400);
         }
-
-        return response()->noContent();
     }
 }
