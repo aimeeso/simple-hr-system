@@ -37,9 +37,9 @@ class UserUpdateRequest extends FormRequest
             "password" => "sometimes|string",
             "role_id" => "sometimes|nullable|exists:roles,id",
             "yearlyAnnualLeaves" => "sometimes|array",
-            "yearlyAnnualLeaves.*.year" => "required|integer",
-            "yearlyAnnualLeaves.*.number_of_day" => "required|numeric",
-            "yearlyAnnualLeaves.*.additional_number_of_day" => "required|numeric",
+            "yearlyAnnualLeaves.*.year" => "required|integer|min:1990|max:2999",
+            "yearlyAnnualLeaves.*.number_of_day" => "required|numeric|min:0|multiple_of:0.5",
+            "yearlyAnnualLeaves.*.additional_number_of_day" => "required|numeric|min:0|multiple_of:0.5",
         ];
     }
 }
