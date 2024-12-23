@@ -30,7 +30,7 @@ class UserStoreRequest extends FormRequest
             "gender" => ["required", Rule::in(['F', 'M'])],
             "on_board_date" => "required|date",
             "exit_date" => "nullable|date",
-            "is_active" => "required|date",
+            "is_active" => "required|boolean",
             "email" => "required|email:rfc,dns|unique:users,email",
             "password" => "required|string",
             "role_id" => "nullable|exists:roles,id"

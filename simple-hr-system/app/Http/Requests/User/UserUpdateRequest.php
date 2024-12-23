@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\User;
 
+use App\Http\Requests\UserYearlyAnnualLeave\BulkUpsertUserYearlyAnnualLeaveRequest;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -22,7 +23,7 @@ class UserUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             "name" => "sometimes|string",
             "last_name" => "sometimes|string",
             "first_name" => "sometimes|string",
@@ -36,10 +37,9 @@ class UserUpdateRequest extends FormRequest
             "is_active" => "sometimes|date",
             "password" => "sometimes|string",
             "role_id" => "sometimes|nullable|exists:roles,id",
-            "yearlyAnnualLeaves" => "sometimes|array",
-            "yearlyAnnualLeaves.*.year" => "required|integer|min:1990|max:2999",
-            "yearlyAnnualLeaves.*.number_of_day" => "required|numeric|min:0|multiple_of:0.5",
-            "yearlyAnnualLeaves.*.additional_number_of_day" => "required|numeric|min:0|multiple_of:0.5",
         ];
+
+        $bulkRequest = new BulkUpsertUserYearlyAnnualLeaveRequest();
+        return array_merge($rules, $bulkRequest->rules());
     }
 }

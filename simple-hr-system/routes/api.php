@@ -31,4 +31,5 @@ Route::group(['prefix' => '', 'middleware' => 'auth:sanctum'], function () {
 
 Route::group(['prefix' => 'admin', 'middleware' => 'auth:sanctum'], function () {
     Route::resource('users', UserController::class)->only(['index', 'show', 'store', 'update']);
+    Route::post('users/{user}/yearly-annual-leaves/bulk-upsert', UserController::class . '@bulkUpsertUserYearlyAnnualLeave');
 });

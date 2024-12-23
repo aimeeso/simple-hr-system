@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\User\UserStoreRequest;
 use App\Http\Requests\User\UserUpdateRequest;
+use App\Http\Requests\UserYearlyAnnualLeave\BulkUpsertUserYearlyAnnualLeaveRequest;
 use App\Http\Resources\UserDetailResource;
 use App\Http\Resources\UserListResource;
 use App\Models\User;
@@ -58,6 +59,14 @@ class UserController extends Controller
         return new UserDetailResource($user);
     }
 
+    /**
+     * Update user. Update yearly annual leaves if provided.
+     *
+     * @param  \Illuminate\Http\Request\UserUpdateRequest  $request
+     * @param  \App\Models\User  $user
+     * @return \Illuminate\Http\Response
+     */
+
     public function update(UserUpdateRequest $request, User $user)
     {
         $this->authorize("update", $user);
@@ -82,6 +91,41 @@ class UserController extends Controller
             $user->save();
 
             $user->saveManyYearlyAnnualLeaves($yearlyAnnualLeaves);
+
+            DB::commit();
+
+            return response()->noContent();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(["message" => $e->getMessage()], 400);
+        }
+    }
+
+    public function destroy(User $user)
+    {
+        $this->authorize("delete", $user);
+
+        try {
+            DB::beginTransaction();
+            $user->delete();
+            DB::commit();
+
+            return response()->noContent();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(["message" => $e->getMessage()], 400);
+        }
+    }
+
+    public function updateYearlyAnnualLeaves(User $user, BulkUpsertUserYearlyAnnualLeaveRequest $request)
+    {
+        $this->authorize("update", $user);
+        $validated = $request->validated();
+
+        try {
+            DB::beginTransaction();
+
+            $user->saveManyYearlyAnnualLeaves($validated["yearlyAnnualLeaves"] ?? []);
 
             DB::commit();
 
