@@ -19,4 +19,12 @@ class UserLeaveRequest extends Model
     {
         return $this->belongsTo(LeaveType::class);
     }
+
+    public function scopeFilterStatus($query, $value)
+    {
+        if (empty($value)) {
+            return $query;
+        }
+        return $query->where('status', $value);
+    }
 }
