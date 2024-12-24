@@ -60,9 +60,19 @@ class User extends Authenticatable implements GenericModel
         return $this->belongsTo(Role::class);
     }
 
+    public function permissions(): BelongsToMany
+    {
+        return $this->role->permissions();
+    }
+
     public function hasRole($roleName)
     {
         return $this->role?->name === $roleName;
+    }
+
+    public function hasPermission($permissionSlug): bool
+    {
+        return $this->role?->containPermission($permissionSlug) ??  false;
     }
 
     public function scopeFilterName($query, $value)
@@ -75,7 +85,7 @@ class User extends Authenticatable implements GenericModel
     {
         // Perform the upsert operation
         foreach ($yearlyAnnualLeaves as $leave) {
-        UserYearlyAnnualLeave::updateOrCreate(
+            UserYearlyAnnualLeave::updateOrCreate(
                 ['user_id' => $this->id, 'year' => $leave['year']], // Match the year for this user
                 ['number_of_day' => $leave['number_of_day'], 'additional_number_of_day' => $leave['additional_number_of_day']] // Update or insert the number_of_day and additional_number_of_day
             );
