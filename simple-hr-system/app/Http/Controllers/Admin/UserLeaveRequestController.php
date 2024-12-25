@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\UserLeaveRequestController as BaseUserLeaveRequestController;
+use App\Http\Requests\UserLeaveRequestAdminStoreRequest;
+use App\Http\Requests\UserLeaveRequestAdminUpdateRequest;
+use App\Http\Resources\UserLeaveRequest\UserLeaveRequestDetailResource;
 use App\Http\Resources\UserLeaveRequest\UserLeaveRequestListResource;
 use App\Models\User;
 use App\Models\UserLeaveRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserLeaveRequestController extends BaseUserLeaveRequestController
 {
@@ -35,37 +39,83 @@ class UserLeaveRequestController extends BaseUserLeaveRequestController
         return UserLeaveRequestListResource::collection($query->paginate($pageSize));
     }
 
-    public function store(Request $request)
+    public function adminStore(UserLeaveRequestAdminStoreRequest $request)
     {
         $this->authorize("create", UserLeaveRequest::class);
         $currentUser = $request->user();
 
-        $userLeaveRequest = new UserLeaveRequest();
-        $userLeaveRequest->user_id = $request->input("user_id");
-        $userLeaveRequest->leave_type_id = $request->input("leave_type_id");
-        $userLeaveRequest->start_date = $request->input("start_date");
-        $userLeaveRequest->start_type = $request->input("start_type");
-        $userLeaveRequest->end_date = $request->input("end_date");
-        $userLeaveRequest->end_type = $request->input("end_type");
-        $userLeaveRequest->number_of_leave_day = $this->countNumberOfDays($request->input("start_date"), $request->input("start_type"), $request->input("end_date"), $request->input("end_type"));
-        $userLeaveRequest->status = $request->input("status");
-        $userLeaveRequest->count_annual_leave = $request->input("count_annual_leave");
-        $userLeaveRequest->updated_by = $currentUser->name;
-        $userLeaveRequest->save();
+        $validated = $request->validated();
 
-        return new UserLeaveRequestListResource($userLeaveRequest);
+        try {
+            DB::beginTransaction();
+            $userLeaveRequest = new UserLeaveRequest();
+            $userLeaveRequest->user_id = $validated["user_id"];
+            $userLeaveRequest->leave_type_id = $validated["leave_type_id"];
+            $userLeaveRequest->start_date = $validated["start_date"];
+            $userLeaveRequest->start_type = $validated["start_type"];
+            $userLeaveRequest->end_date = $validated["end_date"];
+            $userLeaveRequest->end_type = $validated["end_type"];
+            $userLeaveRequest->number_of_leave_day = $this->countNumberOfDays($validated["start_date"], $validated["start_type"], $validated["end_date"], $validated["end_type"]);
+            $userLeaveRequest->status = $validated["status"];
+            $userLeaveRequest->count_annual_leave = $validated["count_annual_leave"];
+            $userLeaveRequest->updated_by = $currentUser->name;
+
+            if($validated["status"] === "approved") {
+                $userLeaveRequest->approved_at = now();
+                if($validated["count_annual_leave"] > 0) {
+                    // TODO: update annual leave
+                }
+            }
+
+            $userLeaveRequest->save();
+
+            DB::commit();  
+
+            return UserLeaveRequestDetailResource::make($userLeaveRequest);
+
+        }
+        catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(["message" => $e->getMessage()], 500);
+        }
     }
 
-    public function update(UserLeaveRequest $userLeaveRequest, Request $request)
+    public function adminUpdate(UserLeaveRequest $userLeaveRequest, UserLeaveRequestAdminUpdateRequest $request)
     {
         $this->authorize("update", $userLeaveRequest);
-        $userLeaveRequest->status = $request->input("status");
-        $userLeaveRequest->count_annual_leave = $request->input("count_annual_leave");
-        $userLeaveRequest->updated_by = $request->user()->name;
-        if($request->input("status") === "approved" && $userLeaveRequest->status !== "approved") {
-            $userLeaveRequest->approved_at = now();
+
+        $validated = $request->validated();
+
+        try {
+            DB::beginTransaction();
+
+            $userLeaveRequest->leave_type_id = $validated["leave_type_id"];
+            $userLeaveRequest->start_date = $validated["start_date"];
+            $userLeaveRequest->start_type = $validated["start_type"];
+            $userLeaveRequest->end_date = $validated["end_date"];
+            $userLeaveRequest->end_type = $validated["end_type"];
+            $userLeaveRequest->number_of_leave_day = $this->countNumberOfDays($validated["start_date"], $validated["start_type"], $validated["end_date"], $validated["end_type"]);
+            $userLeaveRequest->status = $validated["status"];
+            $userLeaveRequest->count_annual_leave = $validated["count_annual_leave"];
+            $userLeaveRequest->updated_by = $request->user()->name;
+
+            if($validated["status"] === "APPROVED" && $userLeaveRequest->status !== "approved") {
+                $userLeaveRequest->approved_at = now();
+                // TODO: update annual leave
+            }
+            else if($validated["status"] === "CANCELED" && $userLeaveRequest->status === "approved") {
+                $userLeaveRequest->approved_at = null;
+                // TODO: update annual leave
+            }
+
+            $userLeaveRequest->save();
+            DB::commit();
+
+            return response()->noContent();
         }
-        $userLeaveRequest->save();
-        return new UserLeaveRequestListResource($userLeaveRequest);
+        catch (\Exception $e) {
+            DB::rollback();
+            return response()->json(["message" => $e->getMessage()], 500);
+        }
     }
 }

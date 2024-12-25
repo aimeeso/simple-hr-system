@@ -24,4 +24,9 @@ class UserLeaveRequestPolicy
     {
         return $user->hasPermission("approve-request") || $user->id === $userLeaveRequest->user_id;
     }
+
+    public function update(User $user, UserLeaveRequest $userLeaveRequest)
+    {
+        return $user->hasPermission("approve-request") || $user->id === $userLeaveRequest->user_id;
+    }
 }
