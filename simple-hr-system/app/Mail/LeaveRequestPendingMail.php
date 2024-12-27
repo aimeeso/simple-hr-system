@@ -2,52 +2,19 @@
 
 namespace App\Mail;
 
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Mail\Mailable;
-use Illuminate\Mail\Mailables\Content;
-use Illuminate\Mail\Mailables\Envelope;
-use Illuminate\Queue\SerializesModels;
+use App\Models\UserLeaveRequest;
 
-class LeaveRequestPendingMail extends Mailable
+class LeaveRequestPendingMail extends GenericLeaveRequestMail
 {
-    use Queueable, SerializesModels;
-
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(UserLeaveRequest $leaveRequest)
     {
-        //
-    }
-
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            subject: 'Leave Request Pending Mail',
+        parent::__construct(
+            leaveRequest: $leaveRequest,
+            subject: 'Your leave request is submitted',
+            markdown: 'mails.leave-request-pending',
         );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'view.name',
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
     }
 }

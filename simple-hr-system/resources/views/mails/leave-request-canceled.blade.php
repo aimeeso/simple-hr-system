@@ -1,4 +1,4 @@
-@component('mails.themes.message')
+<x-mail::message>
 Dear {{ $leaveRequest->user->name }},
 
 Your leave request is canceled.
@@ -11,4 +11,4 @@ Number of Days: {{ $leaveRequest->number_of_days }}
 
 Best regards,<br>
 config('app.name')
-@endcomponent
+</x-mail::message>

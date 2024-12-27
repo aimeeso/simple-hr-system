@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\UserLeaveRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -9,45 +10,17 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class LeaveRequestRejectedMail extends Mailable
+class LeaveRequestRejectedMail extends GenericLeaveRequestMail
 {
-    use Queueable, SerializesModels;
-
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(UserLeaveRequest $leaveRequest)
     {
-        //
-    }
-
-    /**
-     * Get the message envelope.
-     */
-    public function envelope(): Envelope
-    {
-        return new Envelope(
-            subject: 'Leave Request Rejected Mail',
+        parent::__construct(
+            leaveRequest: $leaveRequest,
+            subject: 'Your leave request is rejected',
+            markdown: 'mails.leave-request-rejected',
         );
-    }
-
-    /**
-     * Get the message content definition.
-     */
-    public function content(): Content
-    {
-        return new Content(
-            view: 'view.name',
-        );
-    }
-
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, \Illuminate\Mail\Mailables\Attachment>
-     */
-    public function attachments(): array
-    {
-        return [];
     }
 }

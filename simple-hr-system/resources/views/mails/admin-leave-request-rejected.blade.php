@@ -1,4 +1,4 @@
-@component('mails.themes.message')
+<x-mail::message>
 Dear admins,
 
 A leave request is rejected.
@@ -15,4 +15,4 @@ Approved At: {{ $leaveRequest->approved_at }}
 
 Best regards,<br>
 config('app.name')
-@endcomponent
+</x-mail::message>

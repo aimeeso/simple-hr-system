@@ -1,4 +1,4 @@
-@component('mails.themes.message')
+<x-mail::message>
 Dear {{ $leaveRequest->user->name }},
 
 Your leave request is approved.
@@ -14,4 +14,4 @@ Approved At: {{ $leaveRequest->approved_at }}
 
 Best regards,<br>
 config('app.name')
-@endcomponent
+</x-mail::message>

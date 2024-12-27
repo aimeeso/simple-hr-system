@@ -1,4 +1,4 @@
-@component('mails.themes.message')
+<x-mail::message>
 Dear admins,
 
 A leave request is canceled.
@@ -14,4 +14,4 @@ Original Status: {{ $original_status }}
 
 Best regards,<br>
 config('app.name')
-@endcomponent
+</x-mail::message>
